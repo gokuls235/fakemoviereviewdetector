@@ -1,0 +1,10 @@
+{
+  "models": [
+    {
+      "timestamp": "20250405_120143",
+      "model_file": "models\\review_classifier_20250405_120143.joblib",
+      "metrics": null,
+      "num_samples": 10000
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}About - Movie Review Detector{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Project Overview -->
+    <section class="mb-5">
+        <h2 class="display-4 mb-4">About the Project</h2>
+        <div class="row">
+            <div class="col-md-8">
+                <p class="lead">
+                    The AI-powered Movie Review Detector is an advanced system that uses machine learning and natural language processing to identify potentially fake movie reviews.
+                </p>
+                <p>
+                    Our system analyzes various aspects of a review, including linguistic patterns, sentiment analysis, and contextual relevance to determine the authenticity of movie reviews. This helps maintain the integrity of review platforms and assists users in making informed decisions.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <div class="tech-stack-card">
+                    <h4>Technology Stack</h4>
+                    <ul class="list-unstyled">
+                        <li><i class="fab fa-python"></i> Python</li>
+                        <li><i class="fab fa-flask"></i> Flask</li>
+                        <li><i class="fas fa-brain"></i> Scikit-learn</li>
+                        <li><i class="fas fa-language"></i> NLTK</li>
+                        <li><i class="fab fa-bootstrap"></i> Bootstrap</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Model Performance -->
+    <section class="mb-5">
+        <h3 class="mb-4">Model Performance</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="metrics-card">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="metric-item">
+                                <h4>Accuracy</h4>
+                                <p class="metric-value">{{ "%.2f"|format(metrics.accuracy * 100) }}%</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="metric-item">
+                                <h4>Precision</h4>
+                                <p class="metric-value">{{ "%.2f"|format(metrics.precision * 100) }}%</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="metric-item">
+                                <h4>Recall</h4>
+                                <p class="metric-value">{{ "%.2f"|format(metrics.recall * 100) }}%</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="metric-item">
+                                <h4>F1 Score</h4>
+                                <p class="metric-value">{{ "%.2f"|format(metrics.f1_score * 100) }}%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="mb-5">
+        <h3 class="mb-4">Key Features</h3>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4>Machine Learning</h4>
+                    <p>Advanced algorithms analyze patterns in review text to identify potential fake reviews.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h4>Sentiment Analysis</h4>
+                    <p>Sophisticated sentiment analysis to detect emotional manipulation in reviews.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4>Real-time Analysis</h4>
+                    <p>Instant feedback with detailed metrics and confidence scores.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tech-stack-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .tech-stack-card li {
+        margin: 1rem 0;
+        font-size: 1.1rem;
+    }
+
+    .tech-stack-card i {
+        width: 25px;
+        color: var(--primary-color);
+    }
+
+    .metrics-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .metric-item {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .metric-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin: 0;
+    }
+
+    .chart-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Accuracy', 'Precision', 'Recall', 'F1 Score'],
+            datasets: [{
+                label: 'Model Performance',
+                data: [
+                    {{ metrics.accuracy * 100 }},
+                    {{ metrics.precision * 100 }},
+                    {{ metrics.recall * 100 }},
+                    {{ metrics.f1_score * 100 }}
+                ],
+                backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                borderColor: 'rgba(52, 152, 219, 1)',
+                pointBackgroundColor: 'rgba(52, 152, 219, 1)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgba(52, 152, 219, 1)'
+            }]
+        },
+        options: {
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        stepSize: 20
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

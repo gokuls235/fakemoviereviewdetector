@@ -1,0 +1,663 @@
+{% extends "base.html" %}
+
+{% block title %}IMDb Dataset Analyzer{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Header Section -->
+    <div class="welcome-section mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 mb-2">IMDb Dataset Analyzer</h1>
+                <p class="lead text-muted">Visualize and analyze IMDb movie review data</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="user-stats-badge">
+                    <span class="badge bg-primary">
+                        <i class="fas fa-database me-1"></i>IMDb Dataset
+                    </span>
+                    <span class="badge bg-success ms-2">
+                        <i class="fas fa-chart-line me-1"></i>Data Visualization
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <!-- Dataset Overview -->
+            <div class="dataset-overview-card mb-4">
+                <h3 class="mb-3">Dataset Overview</h3>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-film"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4 id="totalMovies">0</h4>
+                                <p>Total Movies</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4 id="avgRating">0.0</h4>
+                                <p>Average Rating</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4 id="totalVotes">0</h4>
+                                <p>Total Votes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4 id="yearRange">-</h4>
+                                <p>Year Range</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h5 class="mb-3">Rating Distribution</h5>
+                            <canvas id="ratingChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h5 class="mb-3">Votes Distribution</h5>
+                            <canvas id="votesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Charts -->
+            <div class="charts-section mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h5 class="mb-3">Movies by Year</h5>
+                            <canvas id="yearChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h5 class="mb-3">Genre Distribution</h5>
+                            <canvas id="genreChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- More Charts -->
+            <div class="charts-section mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h5 class="mb-3">Runtime Distribution</h5>
+                            <canvas id="runtimeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h5 class="mb-3">Rating vs. Votes</h5>
+                            <canvas id="ratingVotesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-section {
+        background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+        color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        margin-top: -1rem;
+    }
+
+    .user-stats-badge .badge {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .dataset-overview-card, .chart-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .chart-card {
+        height: 350px;
+    }
+
+    .chart-card h5 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+    }
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .stat-info h4 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--dark-color);
+    }
+
+    .stat-info p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart instances
+    let ratingChart = null;
+    let votesChart = null;
+    let yearChart = null;
+    let genreChart = null;
+    let runtimeChart = null;
+    let ratingVotesChart = null;
+    
+    // Load and visualize IMDb dataset
+    // loadIMDbData(); // Comment out API call
+    
+    // Directly use mock data instead of API call
+    loadMockData();
+    
+    async function loadIMDbData() {
+        // This function is kept for future use when the API is fixed
+        try {
+            // Show loading state
+            document.body.style.cursor = 'wait';
+            
+            // Fetch data from the server
+            const response = await fetch('/api/imdb-data');
+            
+            // Check if response is OK
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            }
+            
+            // Check content type to ensure we're getting JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Server returned non-JSON response');
+            }
+            
+            // Try to parse the JSON
+            let data;
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                console.error('JSON parsing error:', parseError);
+                throw new Error('Invalid JSON response from server');
+            }
+            
+            // Update stats
+            updateStats(data.stats);
+            
+            // Create charts
+            createRatingChart(data.ratings);
+            createVotesChart(data.votes);
+            createYearChart(data.years);
+            createGenreChart(data.genres);
+            createRuntimeChart(data.runtimes);
+            createRatingVotesChart(data.ratingVotes);
+            
+        } catch (error) {
+            console.error('Error loading IMDb data:', error);
+            // Display error message in the UI
+            displayErrorMessage('Error loading IMDb data. Using sample data instead.');
+            
+            // Fall back to mock data
+            loadMockData();
+        } finally {
+            document.body.style.cursor = 'default';
+        }
+    }
+    
+    function updateStats(stats) {
+        document.getElementById('totalMovies').textContent = stats.totalMovies.toLocaleString();
+        document.getElementById('avgRating').textContent = stats.avgRating.toFixed(1);
+        document.getElementById('totalVotes').textContent = stats.totalVotes.toLocaleString();
+        document.getElementById('yearRange').textContent = `${stats.minYear}-${stats.maxYear}`;
+    }
+    
+    function createRatingChart(ratings) {
+        const ctx = document.getElementById('ratingChart').getContext('2d');
+        if (ratingChart) {
+            ratingChart.destroy();
+        }
+        
+        ratingChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ratings.map(r => r.rating),
+                datasets: [{
+                    label: 'Number of Movies',
+                    data: ratings.map(r => r.count),
+                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Movies'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Rating'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Distribution of Movie Ratings'
+                    }
+                }
+            }
+        });
+    }
+    
+    function createVotesChart(votes) {
+        const ctx = document.getElementById('votesChart').getContext('2d');
+        if (votesChart) {
+            votesChart.destroy();
+        }
+        
+        votesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: votes.map(v => v.range),
+                datasets: [{
+                    label: 'Number of Movies',
+                    data: votes.map(v => v.count),
+                    backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Movies'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Vote Range'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Distribution of Movie Votes'
+                    }
+                }
+            }
+        });
+    }
+    
+    function createYearChart(years) {
+        const ctx = document.getElementById('yearChart').getContext('2d');
+        if (yearChart) {
+            yearChart.destroy();
+        }
+        
+        yearChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: years.map(y => y.year),
+                datasets: [{
+                    label: 'Number of Movies',
+                    data: years.map(y => y.count),
+                    backgroundColor: 'rgba(155, 89, 182, 0.2)',
+                    borderColor: 'rgba(155, 89, 182, 1)',
+                    borderWidth: 2,
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Movies'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Movies Released by Year'
+                    }
+                }
+            }
+        });
+    }
+    
+    function createGenreChart(genres) {
+        const ctx = document.getElementById('genreChart').getContext('2d');
+        if (genreChart) {
+            genreChart.destroy();
+        }
+        
+        genreChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: genres.map(g => g.genre),
+                datasets: [{
+                    data: genres.map(g => g.count),
+                    backgroundColor: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(46, 204, 113, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(241, 196, 15, 0.7)',
+                        'rgba(230, 126, 34, 0.7)',
+                        'rgba(52, 73, 94, 0.7)',
+                        'rgba(149, 165, 166, 0.7)',
+                        'rgba(26, 188, 156, 0.7)',
+                        'rgba(142, 68, 173, 0.7)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribution of Movie Genres'
+                    }
+                }
+            }
+        });
+    }
+    
+    function createRuntimeChart(runtimes) {
+        const ctx = document.getElementById('runtimeChart').getContext('2d');
+        if (runtimeChart) {
+            runtimeChart.destroy();
+        }
+        
+        runtimeChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: runtimes.map(r => r.range),
+                datasets: [{
+                    label: 'Number of Movies',
+                    data: runtimes.map(r => r.count),
+                    backgroundColor: 'rgba(230, 126, 34, 0.7)',
+                    borderColor: 'rgba(230, 126, 34, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Movies'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Runtime (minutes)'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Distribution of Movie Runtimes'
+                    }
+                }
+            }
+        });
+    }
+    
+    function createRatingVotesChart(ratingVotes) {
+        const ctx = document.getElementById('ratingVotesChart').getContext('2d');
+        if (ratingVotesChart) {
+            ratingVotesChart.destroy();
+        }
+        
+        ratingVotesChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Movies',
+                    data: ratingVotes.map(rv => ({
+                        x: rv.rating,
+                        y: rv.votes
+                    })),
+                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Votes'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Rating'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Relationship Between Ratings and Votes'
+                    }
+                }
+            }
+        });
+    }
+    
+    // Function to display error messages in the UI
+    function displayErrorMessage(message) {
+        // Create error message element if it doesn't exist
+        let errorElement = document.getElementById('error-message');
+        if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.id = 'error-message';
+            errorElement.className = 'alert alert-danger mt-3';
+            errorElement.style.display = 'none';
+            document.querySelector('.container').prepend(errorElement);
+        }
+        
+        // Update and show the error message
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        
+        // Hide the error message after 5 seconds
+        setTimeout(() => {
+            errorElement.style.display = 'none';
+        }, 5000);
+    }
+    
+    // Mock data for demonstration (remove when API is implemented)
+    function loadMockData() {
+        const mockData = {
+            stats: {
+                totalMovies: 25000,
+                avgRating: 7.2,
+                totalVotes: 15000000,
+                minYear: 1900,
+                maxYear: 2023
+            },
+            ratings: [
+                { rating: 1, count: 500 },
+                { rating: 2, count: 1000 },
+                { rating: 3, count: 2000 },
+                { rating: 4, count: 3000 },
+                { rating: 5, count: 4000 },
+                { rating: 6, count: 5000 },
+                { rating: 7, count: 6000 },
+                { rating: 8, count: 4000 },
+                { rating: 9, count: 2000 },
+                { rating: 10, count: 500 }
+            ],
+            votes: [
+                { range: '0-100', count: 5000 },
+                { range: '101-500', count: 8000 },
+                { range: '501-1000', count: 6000 },
+                { range: '1001-5000', count: 4000 },
+                { range: '5001-10000', count: 2000 },
+                { range: '10001+', count: 1000 }
+            ],
+            years: Array.from({ length: 124 }, (_, i) => ({
+                year: 1900 + i,
+                count: Math.floor(Math.random() * 500) + 100
+            })),
+            genres: [
+                { genre: 'Action', count: 5000 },
+                { genre: 'Adventure', count: 4000 },
+                { genre: 'Animation', count: 2000 },
+                { genre: 'Comedy', count: 6000 },
+                { genre: 'Crime', count: 3000 },
+                { genre: 'Documentary', count: 1500 },
+                { genre: 'Drama', count: 8000 },
+                { genre: 'Family', count: 2500 },
+                { genre: 'Fantasy', count: 1800 },
+                { genre: 'Horror', count: 2200 }
+            ],
+            runtimes: [
+                { range: '0-60', count: 2000 },
+                { range: '61-90', count: 3000 },
+                { range: '91-120', count: 5000 },
+                { range: '121-150', count: 4000 },
+                { range: '151-180', count: 3000 },
+                { range: '181+', count: 2000 }
+            ],
+            ratingVotes: Array.from({ length: 100 }, () => ({
+                rating: (Math.random() * 9 + 1).toFixed(1),
+                votes: Math.floor(Math.random() * 10000) + 100
+            }))
+        };
+        
+        // Update stats
+        updateStats(mockData.stats);
+        
+        // Create charts
+        createRatingChart(mockData.ratings);
+        createVotesChart(mockData.votes);
+        createYearChart(mockData.years);
+        createGenreChart(mockData.genres);
+        createRuntimeChart(mockData.runtimes);
+        createRatingVotesChart(mockData.ratingVotes);
+    }
+    
+    // Use mock data for now
+    // loadMockData(); // Comment out this line since we'll use it as fallback
+});
+</script>
+{% endblock %}
